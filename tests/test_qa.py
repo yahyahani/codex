@@ -20,6 +20,10 @@ _FAKE_CHUNKS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# answer() — CLI path
+# ---------------------------------------------------------------------------
+
 def test_answer_streams_text_to_stdout(capsys) -> None:
     with (
         patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
@@ -29,7 +33,6 @@ def test_answer_streams_text_to_stdout(capsys) -> None:
         MockClient.return_value.messages.stream.return_value = _make_mock_stream(
             ["The ", "greet ", "function returns a greeting."]
         )
-
         from codebase_qa.qa import answer
         sources = answer("What does greet do?", top_k=1)
 
@@ -46,9 +49,7 @@ def test_answer_includes_context_in_prompt(capsys) -> None:
         patch("codebase_qa.qa.query", return_value=_FAKE_CHUNKS),
         patch("codebase_qa.qa.Anthropic") as MockClient,
     ):
-        mock_stream = _make_mock_stream(["answer"])
-        MockClient.return_value.messages.stream.return_value = mock_stream
-
+        MockClient.return_value.messages.stream.return_value = _make_mock_stream(["answer"])
         from codebase_qa.qa import answer
         answer("What does greet do?", top_k=1)
 
@@ -96,3 +97,48 @@ def test_mock_no_chunks_returns_empty(capsys) -> None:
 
     assert sources == []
     assert "No indexed chunks" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# answer_sync() — API / non-streaming path
+# ---------------------------------------------------------------------------
+
+def test_answer_sync_mock_returns_text_and_sources() -> None:
+    with (
+        patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
+        patch("codebase_qa.qa.query", return_value=_FAKE_CHUNKS),
+    ):
+        from codebase_qa.qa import answer_sync
+        text, sources = answer_sync("What does greet do?", mock=True)
+
+    assert "[MOCK]" in text
+    assert len(sources) == 1
+    assert sources[0]["file"] == "src/hello.py"
+
+
+def test_answer_sync_collects_streamed_text() -> None:
+    with (
+        patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
+        patch("codebase_qa.qa.query", return_value=_FAKE_CHUNKS),
+        patch("codebase_qa.qa.Anthropic") as MockClient,
+    ):
+        MockClient.return_value.messages.stream.return_value = _make_mock_stream(
+            ["Hello", " world"]
+        )
+        from codebase_qa.qa import answer_sync
+        text, sources = answer_sync("What does greet do?")
+
+    assert text == "Hello world"
+    assert sources[0]["file"] == "src/hello.py"
+
+
+def test_answer_sync_no_chunks_returns_empty() -> None:
+    with (
+        patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
+        patch("codebase_qa.qa.query", return_value=[]),
+    ):
+        from codebase_qa.qa import answer_sync
+        text, sources = answer_sync("anything?")
+
+    assert sources == []
+    assert "No indexed chunks" in text
