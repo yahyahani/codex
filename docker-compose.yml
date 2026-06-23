@@ -6,5 +6,15 @@ services:
       - ./examples/demo_repo:/repo:ro   # replace with your actual repo path
       - chroma_data:/data
 
+  web:
+    build: .
+    env_file: .env
+    entrypoint: uvicorn
+    command: codebase_qa.api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/data
+
 volumes:
   chroma_data:

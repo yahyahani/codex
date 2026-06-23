@@ -110,6 +110,33 @@ codebase-qa --help
 
 ---
 
+## Web UI
+
+A chat-style web interface is included. It talks to the FastAPI backend via
+`/ask/stream` and streams the answer token by token.
+
+![Web UI](docs/screenshot.png)
+
+**Start the server:**
+
+```bash
+# Local (after pip install -e ".[api]")
+uvicorn codebase_qa.api:app --reload
+```
+
+```bash
+# Docker
+docker compose run --rm -p 8000:8000 --entrypoint uvicorn app \
+  codebase_qa.api:app --host 0.0.0.0 --port 8000
+```
+
+Then open **http://localhost:8000** in your browser.
+
+Enable **Mock mode** in the UI to run without an API key — the full retrieval
+pipeline still runs and sources are shown.
+
+---
+
 ## FastAPI endpoint (optional)
 
 An HTTP interface is included for integrations that need a web API instead of
