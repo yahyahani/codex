@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ChromaDB local data
+chroma_db/
+*.chroma
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependency lockfiles (optional — keep if you pin)
+# poetry.lock
