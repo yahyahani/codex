@@ -110,6 +110,59 @@ codebase-qa --help
 
 ---
 
+## FastAPI endpoint (optional)
+
+An HTTP interface is included for integrations that need a web API instead of
+the CLI. It adds two endpoints on top of the same pipeline:
+
+| Endpoint | Description |
+|---|---|
+| `GET /health` | Health check |
+| `POST /ask` | Full answer + sources in one JSON response |
+| `POST /ask/stream` | Server-Sent Events stream — text chunks followed by sources |
+
+**Run locally:**
+
+```bash
+pip install -e ".[api]"
+uvicorn codebase_qa.api:app --reload
+```
+
+**Example — non-streaming:**
+
+```bash
+curl -s -X POST http://localhost:8000/ask \
+     -H 'Content-Type: application/json' \
+     -d '{"question": "How does the Calculator class track history?", "mock": true}' \
+     | python3 -m json.tool
+```
+
+**Example — streaming (SSE):**
+
+```bash
+curl -N -X POST http://localhost:8000/ask/stream \
+     -H 'Content-Type: application/json' \
+     -d '{"question": "What does slugify do?", "mock": true}'
+```
+
+Each SSE event is a JSON object with `type` (`"text"` or `"sources"`) and
+`content`. The stream closes with `data: [DONE]`.
+
+---
+
+## Demo repo
+
+`examples/demo_repo/` contains four Python files you can index immediately:
+
+| File | What to ask |
+|---|---|
+| `hello.py` | "What does the greet function return?" |
+| `calculator.py` | "How does the Calculator track operation history?" |
+| `text_utils.py` | "What does slugify do with special characters?" |
+| `data_pipeline.py` | "How does group_by work?" |
+
+---
+
 ## Commands
 
 ```
