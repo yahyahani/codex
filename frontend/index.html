@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codebase Q&A</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Codebase Q&amp;A</h1>
+      <p class="tagline">Ask questions about your indexed codebase — answers cite real files and line numbers.</p>
+    </header>
+
+    <form id="ask-form" class="ask-form">
+      <textarea
+        id="question"
+        class="question-input"
+        placeholder="What does the greet function do?"
+        rows="3"
+        autofocus
+      ></textarea>
+      <div class="form-footer">
+        <div class="form-options">
+          <label class="option-label">
+            Collection
+            <input id="collection" type="text" class="option-input" value="codebase" />
+          </label>
+          <label class="option-label">
+            <input id="mock-mode" type="checkbox" />
+            Mock mode <span class="muted">(no API key needed)</span>
+          </label>
+        </div>
+        <button id="submit-btn" type="submit" class="submit-btn">Ask →</button>
+      </div>
+    </form>
+
+    <div id="status" class="status" hidden></div>
+
+    <div id="result" class="result" hidden>
+      <div class="bubble question-bubble">
+        <span class="bubble-label">You</span>
+        <p id="question-display"></p>
+      </div>
+      <div class="bubble answer-bubble">
+        <span class="bubble-label">Assistant</span>
+        <pre id="answer-display" class="answer-text"></pre>
+      </div>
+      <div id="sources-section" class="sources-section" hidden>
+        <h3 class="sources-heading">Sources</h3>
+        <ul id="sources-list" class="sources-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
