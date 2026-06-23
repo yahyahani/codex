@@ -8,12 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # -- dependency layer: only rebuilds when pyproject.toml changes --
 COPY pyproject.toml .
-RUN python -c "
-import tomllib, subprocess, sys
-with open('pyproject.toml', 'rb') as f:
-    deps = tomllib.load(f)['project']['dependencies']
-subprocess.run([sys.executable, '-m', 'pip', 'install', '--no-cache-dir'] + deps, check=True)
-"
+RUN python -c "import tomllib,subprocess,sys; deps=tomllib.load(open('pyproject.toml','rb'))['project']['dependencies']; subprocess.run([sys.executable,'-m','pip','install','--no-cache-dir']+deps,check=True)"
 
 # -- application source --
 COPY src/ src/
