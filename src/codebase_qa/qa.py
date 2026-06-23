@@ -1,6 +1,54 @@
-# Milestone 4 — retrieval + Claude API answer generation
+from __future__ import annotations
+
+from anthropic import Anthropic
+
+from codebase_qa.embeddings import embed
+from codebase_qa.vectorstore import query
+
+_MODEL = "claude-opus-4-8"
+
+_SYSTEM = (
+    "You are a code assistant. Answer questions using ONLY the provided source "
+    "code excerpts. For every claim, cite the file and line range in the format "
+    "`path/to/file.py:10-25`. If the context does not contain enough information "
+    "to answer confidently, say so rather than guessing."
+)
 
 
-def answer(question: str, collection_name: str, top_k: int = 5) -> str:
-    """Retrieve relevant chunks and generate an answer via Claude. Implemented in Milestone 4."""
-    raise NotImplementedError
+def answer(
+    question: str,
+    collection_name: str = "codebase",
+    top_k: int = 5,
+) -> list[dict]:
+    """Retrieve relevant chunks, stream the Claude answer to stdout, and return source metadata."""
+    client = Anthropic()  # reads ANTHROPIC_API_KEY from env
+
+    [q_vec] = embed([question])
+    chunks = query(collection_name, q_vec, top_k=top_k)
+
+    if not chunks:
+        print("No indexed chunks found. Run `codebase-qa index <path>` first.")
+        return []
+
+    context = "\n\n".join(
+        f"# {c['metadata']['file']}:{c['metadata']['start_line']}-{c['metadata']['end_line']}\n{c['text']}"
+        for c in chunks
+    )
+
+    with client.messages.stream(
+        model=_MODEL,
+        max_tokens=4096,
+        thinking={"type": "adaptive"},
+        system=_SYSTEM,
+        messages=[
+            {
+                "role": "user",
+                "content": f"<context>\n{context}\n</context>\n\n{question}",
+            }
+        ],
+    ) as stream:
+        for text in stream.text_stream:
+            print(text, end="", flush=True)
+
+    print()
+    return [c["metadata"] for c in chunks]

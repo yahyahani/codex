@@ -47,7 +47,18 @@ def ask(
     top_k: int = typer.Option(5, help="Number of chunks to retrieve"),
 ) -> None:
     """Ask a question about an indexed codebase."""
-    typer.echo(f"Question: {question!r} — (answer generation not yet implemented)")
+    from codebase_qa.qa import answer
+
+    sources = answer(question, collection_name=collection, top_k=top_k)
+
+    if sources:
+        seen: set[str] = set()
+        typer.echo("\nSources:")
+        for s in sources:
+            ref = f"  {s['file']}:{s['start_line']}-{s['end_line']}"
+            if ref not in seen:
+                typer.echo(ref)
+                seen.add(ref)
 
 
 if __name__ == "__main__":
