@@ -63,7 +63,7 @@ def iter_answer(
         yield {"type": "text", "content": "No indexed chunks found. Run `codebase-qa index <path>` first."}
         return
 
-    sources = [c["metadata"] for c in chunks]
+    sources = [{**c["metadata"], "code": c["text"]} for c in chunks]
 
     if mock:
         yield {"type": "text", "content": _MOCK_ANSWER}
