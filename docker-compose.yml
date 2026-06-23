@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    env_file: .env
+    volumes:
+      - ./examples/demo_repo:/repo:ro   # replace with your actual repo path
+      - chroma_data:/data
+
+volumes:
+  chroma_data:
