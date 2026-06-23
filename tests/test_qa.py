@@ -68,3 +68,31 @@ def test_answer_returns_empty_when_no_chunks(capsys) -> None:
 
     assert sources == []
     assert "No indexed chunks" in capsys.readouterr().out
+
+
+def test_mock_skips_api_and_returns_sources(capsys) -> None:
+    with (
+        patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
+        patch("codebase_qa.qa.query", return_value=_FAKE_CHUNKS),
+        patch("codebase_qa.qa.Anthropic") as MockClient,
+    ):
+        from codebase_qa.qa import answer
+        sources = answer("What does greet do?", top_k=1, mock=True)
+
+    MockClient.assert_not_called()
+    captured = capsys.readouterr()
+    assert "[MOCK]" in captured.out
+    assert len(sources) == 1
+    assert sources[0]["file"] == "src/hello.py"
+
+
+def test_mock_no_chunks_returns_empty(capsys) -> None:
+    with (
+        patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
+        patch("codebase_qa.qa.query", return_value=[]),
+    ):
+        from codebase_qa.qa import answer
+        sources = answer("anything?", mock=True)
+
+    assert sources == []
+    assert "No indexed chunks" in capsys.readouterr().out

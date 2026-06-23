@@ -45,11 +45,12 @@ def ask(
     question: str = typer.Argument(..., help="Question to ask about the codebase"),
     collection: str = typer.Option("codebase", help="ChromaDB collection to search"),
     top_k: int = typer.Option(5, help="Number of chunks to retrieve"),
+    mock: bool = typer.Option(False, "--mock", help="Skip the Claude API call and return a fake answer (pipeline smoke test)"),
 ) -> None:
     """Ask a question about an indexed codebase."""
     from codebase_qa.qa import answer
 
-    sources = answer(question, collection_name=collection, top_k=top_k)
+    sources = answer(question, collection_name=collection, top_k=top_k, mock=mock)
 
     if sources:
         seen: set[str] = set()
