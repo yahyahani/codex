@@ -29,6 +29,34 @@ def test_health() -> None:
     assert resp.json() == {"status": "ok"}
 
 
+def test_cors_header_on_regular_request() -> None:
+    resp = client.get("/health", headers={"Origin": "http://localhost:5173"})
+    assert resp.headers.get("access-control-allow-origin") == "*"
+
+
+def test_cors_preflight() -> None:
+    resp = client.options(
+        "/ask",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert resp.status_code == 200
+    assert resp.headers.get("access-control-allow-origin") == "*"
+
+
+def test_frontend_index_served() -> None:
+    from pathlib import Path
+    frontend = Path(__file__).parent.parent / "frontend"
+    if not frontend.is_dir():
+        pytest.skip("frontend directory not present yet")
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert "text/html" in resp.headers["content-type"]
+
+
 def test_ask_mock_returns_answer_and_sources() -> None:
     with (
         patch("codebase_qa.qa.embed", return_value=[[0.0] * 384]),
