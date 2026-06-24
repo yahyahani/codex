@@ -110,30 +110,38 @@ codebase-qa --help
 
 ---
 
-## Web UI
+## Dashboard (React/Vite)
 
-A chat-style web interface is included. It talks to the FastAPI backend via
-`/ask/stream` and streams the answer token by token.
+A two-column dark-theme dashboard built with React, Vite, and Tailwind CSS.
+It streams answers via SSE and shows source evidence cards with the actual code
+content and line numbering — like a mini editor per retrieved chunk.
 
-![Web UI](docs/screenshot.png)
-
-**Start the server:**
-
-```bash
-# Local (after pip install -e ".[api]")
-uvicorn codebase_qa.api:app --reload
-```
+**Local development (two terminals):**
 
 ```bash
-# Docker
-docker compose run --rm -p 8000:8000 --entrypoint uvicorn app \
-  codebase_qa.api:app --host 0.0.0.0 --port 8000
+# Terminal 1 — FastAPI backend
+pip install -e ".[api]"
+codebase-qa index examples/demo_repo
+uvicorn codebase_qa.api:app --port 8000 --reload
+
+# Terminal 2 — Vite dev server (proxies /ask → port 8000)
+cd frontend
+npm install
+npm run dev
 ```
 
-Then open **http://localhost:8000** in your browser.
+Then open **http://localhost:5173** in your browser.
+Enable **Mock mode** in the UI to run without an API key.
 
-Enable **Mock mode** in the UI to run without an API key — the full retrieval
-pipeline still runs and sources are shown.
+**Docker:**
+
+```bash
+docker compose up web   # builds Node+Python, serves at http://localhost:8000
+```
+
+The Dockerfile uses a multi-stage build: a Node 20 stage compiles the React app
+(`npm run build`), and the Python stage copies the resulting `dist/` to serve
+via FastAPI's `StaticFiles`.
 
 ---
 
