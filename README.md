@@ -110,11 +110,21 @@ codebase-qa --help
 
 ---
 
-## Dashboard (React/Vite)
+## Codex Dashboard
 
-A two-column dark-theme dashboard built with React, Vite, and Tailwind CSS.
-It streams answers via SSE and shows source evidence cards with the actual code
-content and line numbering — like a mini editor per retrieved chunk.
+**Codex** is the visual front-end for this tool — a two-column dark/light dashboard
+built with React, Vite, and Tailwind CSS. It streams answers token-by-token via SSE
+and displays each source chunk as an evidence card with syntax-highlighted code and
+line numbers, backed by highlight.js.
+
+![Codex dashboard](docs/screenshot.png)
+
+**Features:**
+- Electric-blue design system (`#0066FF` accent) with a dark/light theme toggle
+- Inline SVG `{}` logo (sharp at any size, used as favicon and header mark)
+- Source evidence cards — file path · line range · syntax-highlighted code (atom-one-dark)
+- 2-column source grid for 3+ results, single column for fewer
+- Mock mode checkbox to run without an API key
 
 **Local development (two terminals):**
 
@@ -124,24 +134,24 @@ pip install -e ".[api]"
 codebase-qa index examples/demo_repo
 uvicorn codebase_qa.api:app --port 8000 --reload
 
-# Terminal 2 — Vite dev server (proxies /ask → port 8000)
+# Terminal 2 — Vite dev server (hot-reload, proxies /ask → port 8000)
 cd frontend
 npm install
 npm run dev
 ```
 
-Then open **http://localhost:5173** in your browser.
-Enable **Mock mode** in the UI to run without an API key.
+Open **http://localhost:5173**. Toggle dark/light with the sun/moon icon (top right).
+Enable **Mock mode** to run without an API key.
 
-**Docker:**
+**Docker (single command):**
 
 ```bash
-docker compose up web   # builds Node+Python, serves at http://localhost:8000
+docker compose build && docker compose up web
 ```
 
-The Dockerfile uses a multi-stage build: a Node 20 stage compiles the React app
-(`npm run build`), and the Python stage copies the resulting `dist/` to serve
-via FastAPI's `StaticFiles`.
+Open **http://localhost:8000**. The Dockerfile uses a multi-stage build: a Node 20
+stage compiles the React app (`npm run build`), and the Python stage copies the
+resulting `dist/` to serve via FastAPI `StaticFiles`.
 
 ---
 
