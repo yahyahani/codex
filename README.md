@@ -1,6 +1,6 @@
-# Codebase Q&A
+# Codex
 
-A CLI tool that indexes a codebase and lets you ask questions about it.
+Codex is a tool that indexes a codebase and lets you ask questions about it.
 Answers are grounded in real code fragments using RAG (Retrieval-Augmented Generation):
 the tool finds the most relevant chunks via vector similarity, then passes them to
 Claude as context so the answer cites actual files and line numbers instead of guessing.
