@@ -110,51 +110,6 @@ codebase-qa --help
 
 ---
 
-## Codex Dashboard
-
-**Codex** is the visual front-end for this tool — a two-column dark/light dashboard
-built with React, Vite, and Tailwind CSS. It streams answers token-by-token via SSE
-and displays each source chunk as an evidence card with syntax-highlighted code and
-line numbers, backed by highlight.js.
-
-![Codex dashboard](docs/screenshot.png)
-
-**Features:**
-- Electric-blue design system (`#0066FF` accent) with a dark/light theme toggle
-- Inline SVG `{}` logo (sharp at any size, used as favicon and header mark)
-- Source evidence cards — file path · line range · syntax-highlighted code (atom-one-dark)
-- 2-column source grid for 3+ results, single column for fewer
-- Mock mode checkbox to run without an API key
-
-**Local development (two terminals):**
-
-```bash
-# Terminal 1 — FastAPI backend
-pip install -e ".[api]"
-codebase-qa index examples/demo_repo
-uvicorn codebase_qa.api:app --port 8000 --reload
-
-# Terminal 2 — Vite dev server (hot-reload, proxies /ask → port 8000)
-cd frontend
-npm install
-npm run dev
-```
-
-Open **http://localhost:5173**. Toggle dark/light with the sun/moon icon (top right).
-Enable **Mock mode** to run without an API key.
-
-**Docker (single command):**
-
-```bash
-docker compose build && docker compose up web
-```
-
-Open **http://localhost:8000**. The Dockerfile uses a multi-stage build: a Node 20
-stage compiles the React app (`npm run build`), and the Python stage copies the
-resulting `dist/` to serve via FastAPI `StaticFiles`.
-
----
-
 ## FastAPI endpoint (optional)
 
 An HTTP interface is included for integrations that need a web API instead of
@@ -192,6 +147,37 @@ curl -N -X POST http://localhost:8000/ask/stream \
 
 Each SSE event is a JSON object with `type` (`"text"` or `"sources"`) and
 `content`. The stream closes with `data: [DONE]`.
+
+---
+
+## Codex Dashboard
+
+**Codex** is the visual front-end — a two-column dark/light dashboard built with
+React, Vite, and Tailwind CSS. It streams answers token-by-token via SSE and renders
+each retrieved source chunk as an evidence card with syntax-highlighted code and
+line numbers (highlight.js, atom-one-dark theme).
+
+**Start:**
+
+```bash
+docker compose build && docker compose up web
+```
+
+Open **http://localhost:8000**. Use the sun/moon toggle (top right) to switch themes.
+Enable **Mock mode** in the sidebar to run without an API key.
+
+<table>
+<tr>
+<td align="center" width="50%">
+<img src="docs/dashboard-dark.png" alt="Codex dashboard — dark mode" />
+<br /><em>Dark mode</em>
+</td>
+<td align="center" width="50%">
+<img src="docs/dashboard-light.png" alt="Codex dashboard — light mode" />
+<br /><em>Light mode</em>
+</td>
+</tr>
+</table>
 
 ---
 
